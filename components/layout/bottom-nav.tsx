@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { UtensilsCrossed, Package, Settings } from "lucide-react";
+import { UtensilsCrossed, Package, Settings, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { t } from "@/lib/i18n";
 import type { Locale } from "@/lib/types";
 
 const tabs = [
   { href: "/meals", icon: UtensilsCrossed, labelKey: "nav.meals" as const },
+  { href: "/dishes", icon: BookOpen, labelKey: "nav.dishes" as const },
   { href: "/inventory", icon: Package, labelKey: "nav.inventory" as const },
   { href: "/settings", icon: Settings, labelKey: "nav.settings" as const },
 ];
@@ -26,7 +27,7 @@ export function BottomNav({ locale }: { locale: Locale }) {
               key={href}
               href={href}
               className={cn(
-                "flex min-w-[72px] flex-col items-center gap-1 rounded-xl px-3 py-2 text-xs font-medium transition-colors",
+                "flex min-w-[64px] flex-col items-center gap-1 rounded-xl px-2 py-2 text-[11px] font-medium transition-colors",
                 active
                   ? "text-emerald-700"
                   : "text-stone-500 hover:text-stone-700"

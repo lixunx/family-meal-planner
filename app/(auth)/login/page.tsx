@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState, Suspense } from "react";
+import { Eye } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -53,6 +55,15 @@ function LoginForm() {
         {authError && (
           <p className="text-center text-sm text-red-600">{authError}</p>
         )}
+        <Link href="/guest/meals" className="block">
+          <Button variant="outline" className="w-full" size="lg">
+            <Eye className="h-4 w-4" />
+            View meals & inventory
+          </Button>
+        </Link>
+        <p className="text-center text-xs text-stone-500">
+          无需登录 · No sign-in needed
+        </p>
       </CardContent>
     </Card>
   );

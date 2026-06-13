@@ -15,6 +15,7 @@ import { MEAL_SLOTS } from "@/lib/types";
 import { formatPlanDate } from "@/lib/utils";
 import { AddDishDialog } from "./add-dish-dialog";
 import { RecommendButton } from "./recommend-button";
+import { RefreshRecommendButton } from "./refresh-recommend-button";
 
 function groupBySlot(items: MealPlanItem[]) {
   const groups: Record<MealSlot, MealPlanItem[]> = {
@@ -74,8 +75,8 @@ export function PlanCard({
         )}
       </CardHeader>
       <CardContent className="space-y-4">
-        {editable && plan.status === "draft" && (
-          <RecommendButton existingPlanId={plan.id} />
+        {editable && (
+          <RefreshRecommendButton existingPlanId={plan.id} />
         )}
         {MEAL_SLOTS.map((slot) => (
           <div key={slot}>

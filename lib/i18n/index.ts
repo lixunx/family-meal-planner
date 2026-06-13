@@ -3,6 +3,7 @@ import type { Locale } from "@/lib/types";
 export type TranslationKey =
   | "app.title"
   | "nav.meals"
+  | "nav.dishes"
   | "nav.inventory"
   | "nav.settings"
   | "meals.tomorrow"
@@ -30,6 +31,13 @@ export type TranslationKey =
   | "meals.fromHistory"
   | "meals.suggestions"
   | "meals.tapToAdd"
+  | "meals.refreshRecommend"
+  | "meals.refreshWarning"
+  | "meals.refreshConfirm"
+  | "dishes.subtitle"
+  | "dishes.add"
+  | "dishes.empty"
+  | "dishes.mealTypes"
   | "inventory.title"
   | "inventory.add"
   | "inventory.name"
@@ -77,6 +85,7 @@ export type TranslationKey =
 const en: Record<TranslationKey, string> = {
   "app.title": "Meal Planner",
   "nav.meals": "Meals",
+  "nav.dishes": "Dishes",
   "nav.inventory": "Inventory",
   "nav.settings": "Settings",
   "meals.tomorrow": "Tomorrow's Plan",
@@ -104,6 +113,14 @@ const en: Record<TranslationKey, string> = {
   "meals.fromHistory": "History",
   "meals.suggestions": "Suggestions",
   "meals.tapToAdd": "Tap to add",
+  "meals.refreshRecommend": "Refresh recommendation",
+  "meals.refreshWarning":
+    "This will replace the current plan with a new recommendation.",
+  "meals.refreshConfirm": "Replace plan",
+  "dishes.subtitle": "Your dish library — add dishes here anytime",
+  "dishes.add": "Add dish",
+  "dishes.empty": "No dishes in this category",
+  "dishes.mealTypes": "For meals",
   "inventory.title": "Inventory",
   "inventory.add": "Add item",
   "inventory.name": "Name",
@@ -152,6 +169,7 @@ const en: Record<TranslationKey, string> = {
 const zhCN: Record<TranslationKey, string> = {
   "app.title": "家庭餐单",
   "nav.meals": "餐单",
+  "nav.dishes": "菜品",
   "nav.inventory": "库存",
   "nav.settings": "设置",
   "meals.tomorrow": "明日餐单",
@@ -179,6 +197,13 @@ const zhCN: Record<TranslationKey, string> = {
   "meals.fromHistory": "历史菜品",
   "meals.suggestions": "推荐",
   "meals.tapToAdd": "点击添加",
+  "meals.refreshRecommend": "重新推荐",
+  "meals.refreshWarning": "这将用新的推荐替换当前餐单。",
+  "meals.refreshConfirm": "确认替换",
+  "dishes.subtitle": "菜品库 — 随时添加常做的菜",
+  "dishes.add": "添加菜品",
+  "dishes.empty": "该分类暂无菜品",
+  "dishes.mealTypes": "适用于",
   "inventory.title": "库存",
   "inventory.add": "添加",
   "inventory.name": "名称",
