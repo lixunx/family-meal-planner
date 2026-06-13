@@ -1,0 +1,6 @@
+-- Seed allowlist (replace with your family emails before running)
+-- INSERT INTO family_allowlist (email, role) VALUES
+--   ('you@example.com', 'admin'),
+--   ('wife@example.com', 'admin'),
+--   ('helper@example.com', 'editor'),
+--   ('son@example.com', 'viewer');
