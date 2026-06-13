@@ -9,6 +9,7 @@ import {
   fetchMealHistory,
   saveMealPlan,
 } from "@/lib/data/meals";
+import { fetchMealConfig } from "@/lib/data/meal-config";
 import { recommendFullDay } from "@/lib/recommendations/engine";
 import { findSimilarDishes } from "@/lib/dishes/similarity";
 import type { DishTag, MealSlot } from "@/lib/types";
@@ -25,12 +26,13 @@ export async function generateRecommendationAction(existingPlanId?: string) {
   const dishes = await fetchDishes();
   const history = await fetchMealHistory(profile.timezone);
   const inventory = await fetchInventory();
+  const mealConfig = await fetchMealConfig();
 
   const recommendations = await recommendFullDay(
     dishes,
     history,
     tomorrow,
-    { inventory }
+    { inventory, mealConfig }
   );
 
   const items: {

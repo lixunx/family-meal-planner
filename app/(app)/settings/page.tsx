@@ -1,10 +1,5 @@
-import { requireProfile } from "@/lib/auth";
-import { fetchAllowlist } from "@/lib/data/settings";
-import { SettingsView } from "@/components/settings/settings-view";
+import { SettingsPageContent } from "@/components/pages/settings-page-content";
 
-export default async function SettingsPage() {
-  const profile = await requireProfile();
-  const allowlist = await fetchAllowlist();
-
-  return <SettingsView profile={profile} allowlist={allowlist} />;
+export default function SettingsPage() {
+  return <SettingsPageContent />;
 }

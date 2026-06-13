@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLocale, useT } from "@/components/locale-provider";
+import { useAppData } from "@/components/app-data-provider";
 import {
   addDishToPlanAction,
   addExistingDishToPlanAction,
@@ -27,6 +28,7 @@ export function AddDishDialog({
 }) {
   const locale = useLocale();
   const tr = useT();
+  const { refreshMeals, refreshDishes } = useAppData();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [tags, setTags] = useState<DishTag[]>(["other"]);
@@ -78,6 +80,7 @@ export function AddDishDialog({
   function handleAddExisting(dishId: string) {
     startTransition(async () => {
       await addExistingDishToPlanAction(planId, slot, dishId);
+      await refreshMeals();
       resetAndClose();
     });
   }
@@ -95,6 +98,8 @@ export function AddDishDialog({
       if (result?.error === "similar_dish_exists") {
         return;
       }
+      await refreshMeals();
+      await refreshDishes();
       resetAndClose();
     });
   }

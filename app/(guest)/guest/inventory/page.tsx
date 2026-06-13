@@ -1,8 +1,5 @@
-import { fetchGuestInventory } from "@/lib/data/guest";
-import { InventoryView } from "@/components/inventory/inventory-view";
+import { GuestInventoryPageContent } from "@/components/pages/guest-inventory-page-content";
 
-export default async function GuestInventoryPage() {
-  const items = await fetchGuestInventory();
-
-  return <InventoryView items={items} editable={false} />;
+export default function GuestInventoryPage() {
+  return <GuestInventoryPageContent />;
 }

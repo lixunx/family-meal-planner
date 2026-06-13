@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useOptionalAppData } from "@/components/app-data-provider";
 import { Camera, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,7 @@ export function InventoryView({
 }) {
   const locale = useLocale();
   const tr = useT();
+  const appData = useOptionalAppData();
 
   const grouped = INVENTORY_CATEGORIES.reduce(
     (acc, cat) => {
@@ -34,7 +36,7 @@ export function InventoryView({
 
   return (
     <div className="space-y-4">
-      {editable && <QuickAddForm locale={locale} />}
+      {editable && <QuickAddForm locale={locale} onSaved={() => appData?.refreshInventory()} />}
 
       <Button variant="outline" className="w-full" disabled>
         <Camera className="h-4 w-4" />
@@ -58,6 +60,7 @@ export function InventoryView({
                     key={item.id}
                     item={item}
                     editable={editable}
+                    onSaved={() => appData?.refreshInventory()}
                   />
                 ))}
               </ul>
@@ -69,7 +72,13 @@ export function InventoryView({
   );
 }
 
-function QuickAddForm({ locale }: { locale: Locale }) {
+function QuickAddForm({
+  locale,
+  onSaved,
+}: {
+  locale: Locale;
+  onSaved?: () => void;
+}) {
   const tr = useT();
   const [pending, startTransition] = useTransition();
   const [name, setName] = useState("");
@@ -86,6 +95,7 @@ function QuickAddForm({ locale }: { locale: Locale }) {
     formData.set("unit", unit);
     startTransition(async () => {
       await upsertInventoryAction(formData);
+      onSaved?.();
       setName("");
       setQuantity("");
       setUnit("");
@@ -149,9 +159,11 @@ function QuickAddForm({ locale }: { locale: Locale }) {
 function InventoryRow({
   item,
   editable,
+  onSaved,
 }: {
   item: InventoryItem;
   editable: boolean;
+  onSaved?: () => void;
 }) {
   const tr = useT();
   const [editing, setEditing] = useState(false);
@@ -171,6 +183,7 @@ function InventoryRow({
     formData.set("unit", unit);
     startTransition(async () => {
       await upsertInventoryAction(formData);
+      onSaved?.();
       setEditing(false);
     });
   }
@@ -233,8 +246,9 @@ function InventoryRow({
             size="icon"
             className="text-stone-400 hover:text-red-600"
             onClick={() =>
-              startTransition(() => {
-                void deleteInventoryAction(item.id);
+              startTransition(async () => {
+                await deleteInventoryAction(item.id);
+                onSaved?.();
               })
             }
           >

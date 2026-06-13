@@ -65,6 +65,14 @@ export type TranslationKey =
   | "settings.viewer"
   | "settings.remove"
   | "settings.readOnly"
+  | "settings.mealConfig"
+  | "settings.mealConfigHint"
+  | "settings.totalDishes"
+  | "settings.minVeg"
+  | "settings.minMeat"
+  | "settings.minSoup"
+  | "settings.saved"
+  | "guest.readOnly"
   | "tag.veg"
   | "tag.meat"
   | "tag.seafood"
@@ -148,6 +156,15 @@ const en: Record<TranslationKey, string> = {
   "settings.viewer": "Viewer",
   "settings.remove": "Remove",
   "settings.readOnly": "Read-only access",
+  "settings.mealConfig": "Meal planning",
+  "settings.mealConfigHint":
+    "How many dishes per meal, and minimums by type for recommendations.",
+  "settings.totalDishes": "Total dishes",
+  "settings.minVeg": "Min vegetables",
+  "settings.minMeat": "Min meat/protein",
+  "settings.minSoup": "Min soup",
+  "settings.saved": "Saved",
+  "guest.readOnly": "Read only",
   "tag.veg": "Vegetable",
   "tag.meat": "Meat",
   "tag.seafood": "Seafood",
@@ -231,6 +248,14 @@ const zhCN: Record<TranslationKey, string> = {
   "settings.viewer": "只读",
   "settings.remove": "移除",
   "settings.readOnly": "只读权限",
+  "settings.mealConfig": "餐单配置",
+  "settings.mealConfigHint": "每餐菜品数量，以及各类型最少数量（用于推荐）。",
+  "settings.totalDishes": "菜品总数",
+  "settings.minVeg": "最少蔬菜",
+  "settings.minMeat": "最少肉类",
+  "settings.minSoup": "最少汤品",
+  "settings.saved": "已保存",
+  "guest.readOnly": "只读",
   "tag.veg": "蔬菜",
   "tag.meat": "肉类",
   "tag.seafood": "海鲜",

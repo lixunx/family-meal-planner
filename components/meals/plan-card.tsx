@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { Check, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useOptionalAppData } from "@/components/app-data-provider";
 import { useLocale, useT } from "@/components/locale-provider";
 import {
   confirmPlanAction,
@@ -45,6 +46,7 @@ export function PlanCard({
 }) {
   const locale = useLocale();
   const tr = useT();
+  const appData = useOptionalAppData();
   const [pending, startTransition] = useTransition();
   const grouped = groupBySlot(plan.items);
 
@@ -64,8 +66,9 @@ export function PlanCard({
             size="sm"
             disabled={pending}
             onClick={() =>
-              startTransition(() => {
-                void confirmPlanAction(plan.id);
+              startTransition(async () => {
+                await confirmPlanAction(plan.id);
+                await appData?.refreshMeals();
               })
             }
           >
@@ -124,8 +127,9 @@ export function PlanCard({
                         size="icon"
                         className="text-stone-400 hover:text-red-600"
                         onClick={() =>
-                          startTransition(() => {
-                            void removeDishFromPlanAction(item.id);
+                          startTransition(async () => {
+                            await removeDishFromPlanAction(item.id);
+                            await appData?.refreshMeals();
                           })
                         }
                       >

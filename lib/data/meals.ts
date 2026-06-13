@@ -121,6 +121,26 @@ export async function createDish(
   return data as Dish | null;
 }
 
+export async function updateDish(
+  id: string,
+  name: string,
+  mealTypes: MealSlot[],
+  tags: string[]
+): Promise<Dish | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("dishes")
+    .update({
+      name,
+      meal_types: mealTypes,
+      tags,
+    })
+    .eq("id", id)
+    .select()
+    .single();
+  return data as Dish | null;
+}
+
 export async function saveMealPlan(
   planDate: string,
   status: "draft" | "confirmed",

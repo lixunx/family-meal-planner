@@ -105,3 +105,14 @@ export function canEdit(role: UserRole): boolean {
 export function canManageFamily(role: UserRole): boolean {
   return role === "admin";
 }
+
+export interface MealSlotConfig {
+  totalCount: number;
+  tagMinimums: {
+    veg: number;
+    meat: number;
+    soup: number;
+  };
+}
+
+export type MealConfig = Record<MealSlot, MealSlotConfig>;

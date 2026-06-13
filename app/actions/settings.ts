@@ -20,6 +20,7 @@ export async function updateSettingsAction(formData: FormData) {
   revalidatePath("/settings");
   revalidatePath("/meals");
   revalidatePath("/inventory");
+  revalidatePath("/dishes");
   return { success: true };
 }
 

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAppData } from "@/components/app-data-provider";
 import { useT } from "@/components/locale-provider";
 import { generateRecommendationAction } from "@/app/actions/meals";
 
@@ -12,12 +13,14 @@ export function RefreshRecommendButton({
   existingPlanId: string;
 }) {
   const tr = useT();
+  const { refreshMeals } = useAppData();
   const [pending, startTransition] = useTransition();
   const [confirming, setConfirming] = useState(false);
 
   function handleRefresh() {
     startTransition(async () => {
       await generateRecommendationAction(existingPlanId);
+      await refreshMeals();
       setConfirming(false);
     });
   }

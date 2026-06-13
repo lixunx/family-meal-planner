@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { LogOut, Trash2 } from "lucide-react";
+import { ChevronRight, LogOut, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,9 +28,11 @@ import { USER_ROLES, canManageFamily } from "@/lib/types";
 export function SettingsView({
   profile,
   allowlist,
+  onOpenMealPlanning,
 }: {
   profile: Profile;
   allowlist: FamilyAllowlist[];
+  onOpenMealPlanning: () => void;
 }) {
   const tr = useT();
   const router = useRouter();
@@ -116,6 +118,15 @@ export function SettingsView({
           </Button>
         </CardContent>
       </Card>
+
+      <button type="button" onClick={onOpenMealPlanning} className="w-full text-left">
+        <Card className="transition-colors active:bg-stone-50">
+          <CardContent className="flex items-center justify-between gap-3 py-4">
+            <p className="text-sm font-medium">{tr("settings.mealConfig")}</p>
+            <ChevronRight className="h-5 w-5 shrink-0 text-stone-400" />
+          </CardContent>
+        </Card>
+      </button>
 
       {isAdmin && (
         <Card>

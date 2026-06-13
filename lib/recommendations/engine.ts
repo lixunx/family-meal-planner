@@ -4,12 +4,16 @@ import type {
   InventoryItem,
   MealPlanWithItems,
   MealSlot,
+  MealSlotConfig,
 } from "@/lib/types";
 import { addDays } from "@/lib/utils";
+import { DEFAULT_MEAL_CONFIG } from "@/lib/meal-config/defaults";
+import type { MealConfig } from "@/lib/types";
 
 export interface RecommendOptions {
   repeatWindow?: Partial<Record<MealSlot, number>>;
   inventory?: InventoryItem[];
+  mealConfig?: MealConfig;
   llmSuggest?: (
     slot: MealSlot,
     candidates: Dish[]
@@ -22,11 +26,14 @@ const DEFAULT_REPEAT_WINDOW: Record<MealSlot, number> = {
   dinner: 5,
 };
 
-const DINNER_TEMPLATE = {
-  veg: [1, 2] as [number, number],
-  protein: 1,
-  soup: 1,
-};
+const FILL_TAG_ORDER: DishTag[] = [
+  "starch",
+  "veg",
+  "meat",
+  "seafood",
+  "soup",
+  "other",
+];
 
 function shuffle<T>(arr: T[]): T[] {
   const copy = [...arr];
@@ -110,28 +117,91 @@ function pickMultiple(
   return result;
 }
 
-function recommendBreakfastOrLunch(
+function pickProtein(
+  pool: Dish[],
+  picked: Dish[],
+  count: number,
+  inventory?: InventoryItem[]
+): Dish[] {
+  const result: Dish[] = [];
+  const usedIds = new Set(picked.map((d) => d.id));
+
+  for (let i = 0; i < count; i++) {
+    let choice: Dish | null = null;
+    for (const tag of shuffle(["meat", "seafood"] as DishTag[])) {
+      choice = pickBest(
+        filterByTags(
+          pool.filter((d) => !usedIds.has(d.id) && !result.some((r) => r.id === d.id)),
+          [tag]
+        ),
+        inventory
+      );
+      if (choice) break;
+    }
+    if (!choice) break;
+    result.push(choice);
+    usedIds.add(choice.id);
+  }
+
+  return result;
+}
+
+function buildPool(
+  dishes: Dish[],
+  slot: MealSlot,
+  recentPlans: MealPlanWithItems[],
+  targetDate: string,
+  windowDays: number
+): Dish[] {
+  const slotDishes = filterBySlot(dishes, slot);
+  const recentIds = getRecentDishIds(recentPlans, slot, targetDate, windowDays);
+  const pool = excludeIds(slotDishes, recentIds);
+  return pool.length >= 2 ? pool : slotDishes;
+}
+
+function recommendWithConfig(
   slot: MealSlot,
   dishes: Dish[],
   recentPlans: MealPlanWithItems[],
   targetDate: string,
   windowDays: number,
+  slotConfig: MealSlotConfig,
   inventory?: InventoryItem[]
 ): Dish[] {
-  const slotDishes = filterBySlot(dishes, slot);
-  const recentIds = getRecentDishIds(recentPlans, slot, targetDate, windowDays);
-  let pool = excludeIds(slotDishes, recentIds);
+  const pool = buildPool(dishes, slot, recentPlans, targetDate, windowDays);
+  const picked: Dish[] = [];
+  const { totalCount, tagMinimums } = slotConfig;
 
-  if (pool.length < 2) {
-    pool = slotDishes;
+  if (tagMinimums.veg > 0) {
+    picked.push(
+      ...pickMultiple(
+        filterByTags(pool, ["veg"]),
+        tagMinimums.veg,
+        picked,
+        inventory
+      )
+    );
   }
 
-  const count = slot === "breakfast" ? 2 : 3;
-  const tags: DishTag[] = ["starch", "veg", "meat", "seafood", "other"];
-  const picked: Dish[] = [];
+  if (tagMinimums.meat > 0) {
+    picked.push(
+      ...pickProtein(pool, picked, tagMinimums.meat, inventory)
+    );
+  }
 
-  for (const tag of tags) {
-    if (picked.length >= count) break;
+  if (tagMinimums.soup > 0) {
+    picked.push(
+      ...pickMultiple(
+        filterByTags(pool, ["soup"]),
+        tagMinimums.soup,
+        picked,
+        inventory
+      )
+    );
+  }
+
+  for (const tag of FILL_TAG_ORDER) {
+    if (picked.length >= totalCount) break;
     const tagPool = filterByTags(
       pool.filter((d) => !picked.some((p) => p.id === d.id)),
       [tag]
@@ -140,81 +210,17 @@ function recommendBreakfastOrLunch(
     if (choice) picked.push(choice);
   }
 
-  if (picked.length < count) {
+  if (picked.length < totalCount) {
     const extra = pickMultiple(
       pool,
-      count - picked.length,
+      totalCount - picked.length,
       picked,
       inventory
     );
     picked.push(...extra);
   }
 
-  return picked.slice(0, count);
-}
-
-function recommendDinner(
-  dishes: Dish[],
-  recentPlans: MealPlanWithItems[],
-  targetDate: string,
-  windowDays: number,
-  inventory?: InventoryItem[]
-): Dish[] {
-  const slotDishes = filterBySlot(dishes, "dinner");
-  const recentIds = getRecentDishIds(
-    recentPlans,
-    "dinner",
-    targetDate,
-    windowDays
-  );
-  let pool = excludeIds(slotDishes, recentIds);
-
-  if (pool.length < 3) {
-    pool = slotDishes;
-  }
-
-  const picked: Dish[] = [];
-
-  const vegCount =
-    DINNER_TEMPLATE.veg[0] +
-    Math.floor(Math.random() * (DINNER_TEMPLATE.veg[1] - DINNER_TEMPLATE.veg[0] + 1));
-  const vegDishes = pickMultiple(
-    filterByTags(pool, ["veg"]),
-    vegCount,
-    picked,
-    inventory
-  );
-  picked.push(...vegDishes);
-
-  const proteinTags: DishTag[] = shuffle(["meat", "seafood"]);
-  let protein: Dish | null = null;
-  for (const tag of proteinTags) {
-    protein = pickBest(
-      filterByTags(
-        pool.filter((d) => !picked.some((p) => p.id === d.id)),
-        [tag]
-      ),
-      inventory
-    );
-    if (protein) break;
-  }
-  if (protein) picked.push(protein);
-
-  const soup = pickBest(
-    filterByTags(
-      pool.filter((d) => !picked.some((p) => p.id === d.id)),
-      ["soup"]
-    ),
-    inventory
-  );
-  if (soup) picked.push(soup);
-
-  if (picked.length < 3) {
-    const extra = pickMultiple(pool, 4 - picked.length, picked, inventory);
-    picked.push(...extra);
-  }
-
-  return picked.slice(0, 4);
+  return picked.slice(0, totalCount);
 }
 
 export async function recommendMeal(
@@ -227,6 +233,8 @@ export async function recommendMeal(
   const windowDays =
     options.repeatWindow?.[slot] ?? DEFAULT_REPEAT_WINDOW[slot];
   const inventory = options.inventory;
+  const mealConfig = options.mealConfig ?? DEFAULT_MEAL_CONFIG;
+  const slotConfig = mealConfig[slot];
 
   if (options.llmSuggest) {
     const slotDishes = filterBySlot(dishes, slot);
@@ -255,22 +263,13 @@ export async function recommendMeal(
     }
   }
 
-  if (slot === "dinner") {
-    return recommendDinner(
-      dishes,
-      recentPlans,
-      targetDate,
-      windowDays,
-      inventory
-    );
-  }
-
-  return recommendBreakfastOrLunch(
+  return recommendWithConfig(
     slot,
     dishes,
     recentPlans,
     targetDate,
     windowDays,
+    slotConfig,
     inventory
   );
 }
